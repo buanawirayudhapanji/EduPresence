@@ -1,0 +1,42 @@
+Pada Role Admin
+1. pada dashboard hapus kontrol panel cepat, dan Aktivitas absensi terbaru
+2. pada page karyawan hapus fitur tambah karyawan
+3. Kelola karyawan yg dimaksud disni aktif dan nonaktifkan karyawan saja jadi hapus fitur untuk edit dan hapus karyawan
+4. pengguna lai tidak berhak tau mengenai password maka lakukan hash password, dan hpus password pengguna dari menu admina
+5. Admin dapat mengelola absen seperti merubah absen  jadi hadir, ijin, sakit, tanpa keterangan. setelah admin yg mengganti status di hari tersebut maka user gabisa absen
+
+Pada Role user
+1. Map tampilkan lokasi user yg didapat dari gps
+2. Luar radius ganti dengan TIdak hadir (jadi ada semua, hadir, tidak hadi) dan nanti ditampilkan juga kenapa kok tidak hadir, sesuaikan juga di role admin
+
+
+
+
+
+
+Rules Aplikasi Presensi Guru TK
+1. Kalender Kerja
+Default:
+Senin–Sabtu = Hari Kerja
+Minggu = Libur
+Admin dapat mengubah hari tertentu menjadi Hari Kerja atau Libur.
+
+2. Jadwal Kerja
+Admin mengatur jam masuk dan jam pulang untuk setiap hari kerja.
+Jadwal dapat berbeda tiap hari.
+3. Presensi
+Jika status hari = Libur:
+Presensi ditutup.
+Status otomatis Libur.
+Tidak dihitung dalam rekap kehadiran.
+Jika status hari = Kerja:
+Presensi dibuka sesuai jam yang ditentukan admin.
+Guru dapat melakukan:
+Absen Masuk
+Absen Pulang
+
+presensi datang bisa dilakukan mulai dari 1 jam sebelum jam masuk yg ditetapka admin setelah itu gabisa (melewati = tanpa keterangan)
+presensi pulang bisa dilakukan mulai dari jam pulang yang ditentukan admin (sebelum itu = tanpa keterangan)
+
+
+dari project ini ubah segala "pegawai" menjadi Guru, dan ubah HRD menjadi "Kepala Sekolah" tapi di databse biarkan tetap user dan admin

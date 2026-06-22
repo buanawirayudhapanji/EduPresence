@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "474820689714",
+    "project_id": "edupresence-dd21c",
+    "storage_bucket": "edupresence-dd21c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:474820689714:android:6e0127498687c640d5212b",
+        "android_client_info": {
+          "package_name": "com.edupresence"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACDoycEbpu6kwJRAO_nF-umsGpv5tjlV8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
