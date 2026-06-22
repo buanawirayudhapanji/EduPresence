@@ -6,7 +6,6 @@ import 'package:edu_presence/modules/auth/controllers/auth_controller.dart';
 import 'package:edu_presence/core/theme/app_theme.dart';
 import 'package:edu_presence/core/database/db_helper.dart';
 import 'package:edu_presence/data/models/user_model.dart';
-import 'package:image_picker/image_picker.dart';
 
 class UserProfileView extends GetView<UserController> {
   const UserProfileView({super.key});
