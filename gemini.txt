@@ -40,3 +40,15 @@ presensi pulang bisa dilakukan mulai dari jam pulang yang ditentukan admin (sebe
 
 
 dari project ini ubah segala "pegawai" menjadi Guru, dan ubah HRD menjadi "Kepala Sekolah" tapi di databse biarkan tetap user dan admin
+
+
+1. user harus tahu untuk hari ini batas absen masuk dan absen pulangnya jam berapa
+2. kalo diluar area bikin gabisa absen saja
+3. ada error *package: flutter/src/material/
+material.dart': Failed assertion:
+line 209 pos 15: '!(shape != null
+&& borderRadius != null)': is not
+true.
+See also: https://
+docs.flutter.dev/testing/errors
+3. pada dashboard admin janagan tulis izin/sakit tapi tidak hadir

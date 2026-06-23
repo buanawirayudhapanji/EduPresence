@@ -266,7 +266,7 @@ class AdminDashboardView extends GetView<AdminController> {
     return Obx(() {
       final totalEmployees = controller.rxTotalEmployees.value;
       final totalHadir = controller.rxTotalHadir.value;
-      final totalIzinSakit = controller.rxTotalLuarRadius.value;
+      final totalTidakHadir = controller.rxTotalLuarRadius.value;
       final totalAbsensi = controller.rxTotalAbsensi.value;
       
       // Calculate missing/not checked in
@@ -372,11 +372,11 @@ class AdminDashboardView extends GetView<AdminController> {
                 ),
                 Expanded(
                   child: _buildSummaryItem(
-                    title: 'Izin / Sakit',
-                    value: '$totalIzinSakit',
-                    subtitle: 'Izin Hari Ini',
-                    icon: Icons.info_outline_rounded,
-                    color: AppTheme.warning,
+                    title: 'Tidak Hadir',
+                    value: '$totalTidakHadir',
+                    subtitle: 'Tidak Hadir Hari Ini',
+                    icon: Icons.cancel_outlined,
+                    color: AppTheme.danger,
                   ),
                 ),
               ],

@@ -141,6 +141,32 @@ class UserDashboardView extends GetView<UserController> {
                 final checkInTime = hasCheckedIn ? todayLogs.first.dateTime.substring(11, 16) : '--:--';
                 final checkOutTime = hasCheckedOut ? todayLogs.last.dateTime.substring(11, 16) : '--:--';
 
+                final schedule = controller.rxTodaySchedule;
+                final todayStatus = controller.rxTodayStatus.value;
+                
+                String limitMasuk = '';
+                String limitPulang = '';
+                
+                if (todayStatus == 'kerja') {
+                  final masukStr = schedule['masuk'] ?? '07:00';
+                  final pulangStr = schedule['pulang'] ?? '13:00';
+                  try {
+                    final parts = masukStr.split(':');
+                    final hr = int.parse(parts[0]);
+                    final min = int.parse(parts[1]);
+                    final startHr = (hr - 1 + 24) % 24;
+                    final startHrStr = startHr.toString().padLeft(2, '0');
+                    final minStr = min.toString().padLeft(2, '0');
+                    limitMasuk = '$startHrStr:$minStr - $masukStr';
+                  } catch (e) {
+                    limitMasuk = '1 Jam sebelum $masukStr';
+                  }
+                  limitPulang = 'Mulai $pulangStr';
+                } else {
+                  limitMasuk = 'Libur';
+                  limitPulang = 'Libur';
+                }
+
                 String statusLabel = 'Belum Absen';
                 Color statusColor = AppTheme.danger;
                 IconData statusIcon = Icons.pending_actions_rounded;
@@ -235,6 +261,7 @@ class UserDashboardView extends GetView<UserController> {
                               iconColor: AppTheme.primary,
                               label: 'Jam Masuk',
                               value: checkInTime,
+                              subtitle: todayStatus == 'kerja' ? 'Batas: $limitMasuk' : 'Hari Libur',
                             ),
                           ),
                           Container(width: 1.5, height: 40, color: AppTheme.border),
@@ -244,6 +271,7 @@ class UserDashboardView extends GetView<UserController> {
                               iconColor: const Color(0xFF3B82F6),
                               label: 'Jam Pulang',
                               value: checkOutTime,
+                              subtitle: todayStatus == 'kerja' ? 'Batas: $limitPulang' : 'Hari Libur',
                             ),
                           ),
                           Container(width: 1.5, height: 40, color: AppTheme.border),
@@ -260,6 +288,71 @@ class UserDashboardView extends GetView<UserController> {
                             ),
                           ),
                         ],
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              const SizedBox(height: 16),
+              
+              // Today's Attendance Deadlines Banner Card
+              Obx(() {
+                final schedule = controller.rxTodaySchedule;
+                final todayStatus = controller.rxTodayStatus.value;
+                if (todayStatus == 'libur') return const SizedBox.shrink();
+
+                final masukStr = schedule['masuk'] ?? '07:00';
+                final pulangStr = schedule['pulang'] ?? '13:00';
+                
+                String limitMasuk = '';
+                try {
+                  final parts = masukStr.split(':');
+                  final hr = int.parse(parts[0]);
+                  final min = int.parse(parts[1]);
+                  final startHr = (hr - 1 + 24) % 24;
+                  final startHrStr = startHr.toString().padLeft(2, '0');
+                  final minStr = min.toString().padLeft(2, '0');
+                  limitMasuk = '$startHrStr:$minStr - $masukStr';
+                } catch (e) {
+                  limitMasuk = '1 jam sebelum $masukStr';
+                }
+
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppTheme.primary.withOpacity(0.15)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline_rounded, color: AppTheme.primary, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Batas Waktu Absensi Hari Ini',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Absen Masuk: $limitMasuk WIB\nAbsen Pulang: Mulai $pulangStr WIB',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppTheme.textPrimary,
+                                height: 1.4,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -546,19 +639,37 @@ class UserDashboardView extends GetView<UserController> {
 
         final isLocked = controller.rxLocked.value;
         final lockText = controller.rxTodayLockText.value;
+        final isWithin = controller.rxIsWithinRadius.value;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
           child: FloatingActionButton.extended(
             onPressed: isLocked
                 ? () => Get.snackbar('Absensi Terkunci', lockText, backgroundColor: Colors.amber, colorText: Colors.black)
-                : () => _openAttendanceBottomSheet(context),
-            backgroundColor: isLocked ? const Color(0xFF94A3B8) : AppTheme.primary,
+                : (!isWithin
+                    ? () => Get.snackbar(
+                          'Di Luar Radius',
+                          'Anda berada di luar radius sekolah. Absensi tidak dapat dilakukan.',
+                          backgroundColor: Colors.redAccent,
+                          colorText: Colors.white,
+                        )
+                    : () => _openAttendanceBottomSheet(context)),
+            backgroundColor: isLocked
+                ? const Color(0xFF94A3B8)
+                : (!isWithin ? const Color(0xFFEF4444) : AppTheme.primary),
             elevation: isLocked ? 2 : 8,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-            icon: Icon(isLocked ? Icons.lock_outline_rounded : Icons.fingerprint_rounded, color: Colors.white, size: 24),
+            icon: Icon(
+              isLocked
+                  ? Icons.lock_outline_rounded
+                  : (!isWithin ? Icons.location_off_rounded : Icons.fingerprint_rounded),
+              color: Colors.white,
+              size: 24,
+            ),
             label: Text(
-              isLocked ? 'TERKUNCI' : 'ABSEN SEKARANG',
+              isLocked
+                  ? 'TERKUNCI'
+                  : (!isWithin ? 'DI LUAR RADIUS' : 'ABSEN SEKARANG'),
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 0.5),
             ),
           ),
@@ -573,6 +684,7 @@ class UserDashboardView extends GetView<UserController> {
     required Color iconColor,
     required String label,
     required String value,
+    String? subtitle,
   }) {
     return Row(
       children: [
@@ -603,6 +715,15 @@ class UserDashboardView extends GetView<UserController> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 8, color: iconColor, fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ],
           ),
         ),

@@ -288,6 +288,16 @@ class UserController extends GetxController {
       return;
     }
 
+    if (!rxIsWithinRadius.value) {
+      Get.snackbar(
+        'Di Luar Radius',
+        'Anda berada di luar radius sekolah. Absensi tidak dapat dilakukan.',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     rxIsLoading.value = true;
     try {
       final isWithin = rxIsWithinRadius.value;

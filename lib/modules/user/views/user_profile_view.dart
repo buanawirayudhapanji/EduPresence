@@ -6,6 +6,7 @@ import 'package:edu_presence/modules/auth/controllers/auth_controller.dart';
 import 'package:edu_presence/core/theme/app_theme.dart';
 import 'package:edu_presence/core/database/db_helper.dart';
 import 'package:edu_presence/data/models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserProfileView extends GetView<UserController> {
   const UserProfileView({super.key});
@@ -149,7 +150,7 @@ class UserProfileView extends GetView<UserController> {
                         const SizedBox(width: 8),
                         _buildFilterChip(
                           label: 'Tidak Hadir',
-                          value: 'tidak_hdir', // Map status != 'hadir'
+                          value: 'tidak_hadir', // Map status != 'hadir'
                           currentValue: statusFilterRx.value,
                           onTap: () => statusFilterRx.value = 'tidak_hadir',
                         ),
@@ -368,7 +369,6 @@ class UserProfileView extends GetView<UserController> {
             
             Material(
               color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(24),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
                 side: const BorderSide(color: AppTheme.border, width: 1.5),
@@ -454,7 +454,7 @@ class UserProfileView extends GetView<UserController> {
 
     final usernameCtrl = TextEditingController(text: user.username);
     final emailCtrl = TextEditingController(text: user.email);
-    final passwordCtrl = TextEditingController(text: user.password);
+    final passwordCtrl = TextEditingController();
     final rxObscure = true.obs;
 
     Get.bottomSheet(
@@ -524,7 +524,7 @@ class UserProfileView extends GetView<UserController> {
                 controller: passwordCtrl,
                 obscureText: rxObscure.value,
                 decoration: InputDecoration(
-                  hintText: 'Minimal 6 karakter',
+                  hintText: 'Kosongkan jika tidak ingin diubah',
                   prefixIcon: const Icon(Icons.lock_outline_rounded, size: 18),
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -559,8 +559,8 @@ class UserProfileView extends GetView<UserController> {
                       final email = emailCtrl.text.trim();
                       final pwd = passwordCtrl.text;
 
-                      if (name.isEmpty || email.isEmpty || pwd.isEmpty) {
-                        Get.snackbar('Gagal', 'Semua kolom wajib diisi', backgroundColor: Colors.redAccent, colorText: Colors.white);
+                      if (name.isEmpty || email.isEmpty) {
+                        Get.snackbar('Gagal', 'Username dan Email wajib diisi', backgroundColor: Colors.redAccent, colorText: Colors.white);
                         return;
                       }
 
@@ -569,17 +569,21 @@ class UserProfileView extends GetView<UserController> {
                         return;
                       }
 
-                      if (pwd.length < 6) {
+                      if (pwd.isNotEmpty && pwd.length < 6) {
                         Get.snackbar('Validasi Gagal', 'Password minimal terdiri dari 6 karakter', backgroundColor: Colors.redAccent, colorText: Colors.white);
                         return;
                       }
 
                       try {
+                        if (pwd.isNotEmpty) {
+                          await FirebaseAuth.instance.currentUser?.updatePassword(pwd);
+                        }
+
                         final updated = UserModel(
                           id: user.id,
                           username: name,
                           email: email,
-                          password: pwd,
+                          password: pwd.isNotEmpty ? pwd : user.password,
                           role: user.role,
                         );
 
